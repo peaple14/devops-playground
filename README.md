@@ -2,54 +2,54 @@
 
 ## 프로젝트 진행 단계
 
-1. **~~ngrok을 사용하여 Jenkins 연결~~** (소규모라 EC2 서버에 Jenkins 설치가 효율적이라고 판단)
-2. **EC2 배포 테스트** (완료)
-3. **EC2에 Jenkins 설치 및 설정** (완료){**~~swap 메모리 할당 or EBS볼륨 확장~~**(젠킨스 내 불필요한 캐시나 데이터가 없었기에, 임계값 수정만으로 문제 해결)}
-4. **EC2의 Jenkins와 서버 배포 자동화** 
+1. **~~ngrok을 사용하여 Jenkins 연결~~**  
+   _(소규모라 EC2 서버에 Jenkins 설치가 효율적이라고 판단)_  
+2. **EC2 배포 테스트** _(완료)_  
+3. **EC2에 Jenkins 설치 및 설정** _(완료)_  
+   - **~~swap 메모리 할당 또는 EBS 볼륨 확장~~**  
+     Jenkins 내 불필요한 캐시나 데이터가 없었기에, **임계값 수정**만으로 문제 해결  
+4. **EC2의 Jenkins와 서버 배포 자동화**  
 5. **테스트 코드 작성 및 공부 후 CI/CD 완성**
 
+---
 
+## 문제 해결 과정
 
+### Jenkins 디스크 공간 문제
+- 경고 메시지:  Disk space is below threshold of 1.00 GiB. Only 970.56 MiB out of 6.71 GiB left on /var/lib/Jenkins.
 
+- 해결 과정:
+- 옵션 1: **Swap 메모리 추가** 또는 **EBS 볼륨 확장** _(장기적 해결책)_  
+- 옵션 2: **Jenkins 디스크 공간 경고 임계값 낮춤** _(현재 Jenkins에서 큰 용량 작업이 없으므로 적용)_
 
+---
 
+## JAR 파일 실행 및 관리 스크립트
 
-
-
-Jenkins의 용량문제 발견.
-(disk space is below threshold of 1.00 GIB. Only 970.56Mib out of 6.71 GiB left on /varr/lib/Jenkins)
-->swap을 통해 용량 증가or EBS볼륨확장(장기적인 문제해결)
-->현재 Jenkins에서 큰 용량을 사용하는 작업이 없으므로, 디스크 공간 경고 임계값을 낮춤으로써 문제를 해결.
-
-
-
-
-종료,종료확인,새JAR실행
+```bash
 JAR_NAME=devops-playground-0.0.1-SNAPSHOT.jar
+
+# 기존 JAR 프로세스 종료
 if [ -z "`ps -eaf | grep $JAR_NAME | grep -v grep`" ]; then
-  echo "Not found $JAR_NAME"
+echo "Not found $JAR_NAME"
 else
-  ps -eaf | grep $JAR_NAME | grep -v grep | awk '{print $2}' |
-  while read PID
-  do
-    echo "Killing $PID"
-    kill -9 $PID
-    echo "$PID is shutdown"
-  done
+ps -eaf | grep $JAR_NAME | grep -v grep | awk '{print $2}' |
+while read PID
+do
+  echo "Killing $PID"
+  kill -9 $PID
+  echo "$PID is shutdown"
+done
 fi
+
+# 새 JAR 실행
 echo "Starting $JAR_NAME ..."
 nohup java -jar "/var/lib/jenkins/workspace/pipelinetest/build/libs/$JAR_NAME" > /dev/null 2>&1 &
 echo "$JAR_NAME 돌아갑니다."
 
 
+-도움을준 블로그
+-https://gong-story.tistory.com/40
+-https://velog.io/@rungoat/CICD-Jenkins%EC%99%80-GitHub-%EC%97%B0%EB%8F%99%ED%95%98%EA%B8%B0
+-https://kwang1.tistory.com/22
 
-
-
-도움을준 블로그
-https://gong-story.tistory.com/40
-https://velog.io/@rungoat/CICD-Jenkins%EC%99%80-GitHub-%EC%97%B0%EB%8F%99%ED%95%98%EA%B8%B0
-https://kwang1.tistory.com/22
-
-
-
-이 프로젝트는 DevOps 환경에서 Jenkins와 EC2를 활용하여 배포 자동화를 설정하는 방법을 다룹니다.
