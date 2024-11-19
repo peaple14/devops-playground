@@ -47,6 +47,8 @@ echo "Starting $JAR_NAME ..."
 nohup java -jar "/var/lib/jenkins/workspace/pipelinetest/build/libs/$JAR_NAME" > /dev/null 2>&1 &
 echo "$JAR_NAME 돌아갑니다."
 
+```
+---
 
 ## 참고한 자료
 
