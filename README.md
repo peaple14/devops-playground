@@ -48,8 +48,10 @@ nohup java -jar "/var/lib/jenkins/workspace/pipelinetest/build/libs/$JAR_NAME" >
 echo "$JAR_NAME 돌아갑니다."
 
 
--도움을준 블로그
--https://gong-story.tistory.com/40
--https://velog.io/@rungoat/CICD-Jenkins%EC%99%80-GitHub-%EC%97%B0%EB%8F%99%ED%95%98%EA%B8%B0
--https://kwang1.tistory.com/22
+## 참고한 자료
+
+- [gong-story 블로그](https://gong-story.tistory.com/40)  
+- [velog Jenkins와 GitHub 연동](https://velog.io/@rungoat/CICD-Jenkins%EC%99%80-GitHub-%EC%97%B0%EB%8F%99%ED%95%98%EA%B8%B0)  
+- [kwang1 블로그](https://kwang1.tistory.com/22)  
+
 
