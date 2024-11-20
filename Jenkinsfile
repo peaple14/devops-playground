@@ -10,11 +10,11 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/peaple14/devops-playground.git'
+                checkout scm  // 최신 코드 확인을 위해 scm 체크아웃 사용
             }
         }
 
-        stage('Set Executable Permission') { // gradlew 실행 권한 부여
+        stage('Set Executable Permission') {
             steps {
                 sh 'chmod +x gradlew'
             }
@@ -23,13 +23,12 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                  sh './gradlew build'
+                    sh './gradlew build'  // Gradle 빌드 실행
                 }
             }
         }
 
-
-        stage('Stop Existing Application') { // 기존 애플리케이션 종료
+        stage('Stop Existing Application') {
             steps {
                 script {
                     sh '''
@@ -39,7 +38,7 @@ pipeline {
                             echo "No running process found for devops-playground-0.0.1-SNAPSHOT.jar"
                         else
                             echo "Killing process with PID: $PID"
-                            sudo kill -9 $PID
+                            sudo kill -9 $PID  # 기존 애플리케이션 종료
                             echo "Process with PID $PID has been stopped"
                         fi
                     '''
@@ -47,14 +46,15 @@ pipeline {
             }
         }
 
-
-        stage('Deploy') { // jar 실행
+        stage('Deploy') {
             steps {
                 script {
                     sh """
                     echo "Starting $JAR_NAME ..."
-                    nohup java -Dserver.port=8080 -jar ${BUILD_DIR}/${JAR_NAME} > ${LOG_FILE} 2>&1 &
-                    echo "$JAR_NAME is running on port 8080.."
+                    nohup java -Dserver.port=8080 -jar /home/ubuntu/devops-playground/build/libs/devops-playground-0.0.1-SNAPSHOT.jar > /var/log/devops-playground.log 2>&1 &
+                    sleep 5  # 잠시 대기 후 프로세스 확인
+                    PID=\$(ps -eaf | grep 'devops-playground-0.0.1-SNAPSHOT.jar' | grep -v grep | awk '{print \$2}')
+                    echo "Application started with PID: \$PID"
                     """
                 }
             }
