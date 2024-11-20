@@ -13,6 +13,7 @@ build/
 .settings
 .springBeans
 .sts4-cache
+.pem
 bin/
 !**/src/main/**/bin/
 !**/src/test/**/bin/
@@ -27,7 +28,7 @@ out/
 !**/src/test/**/out/
 
 ### NetBeans ###
-/nbproject/private/
+/nbproject/priva:te/
 /nbbuild/
 /dist/
 /nbdist/

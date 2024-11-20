@@ -2,76 +2,54 @@ pipeline {
     agent any
 
     environment {
-        JAR_NAME = "devops-playground-0.0.1-SNAPSHOT.jar"
-        BUILD_DIR = "${workspace}/build/libs"
-        LOG_FILE = "/var/log/devops-playground.log"
+        JAR_NAME = 'devops-playground-0.0.1-SNAPSHOT.jar'
+        JAR_PATH = "/var/lib/jenkins/workspace/${JOB_NAME}/build/libs/${JAR_NAME}"
     }
 
     stages {
-        stage('Checkout') {
+        stage('Checkout code') {
             steps {
-                checkout scm  // 최신 코드 확인을 위해 scm 체크아웃 사용
+                checkout scm
             }
         }
 
-        stage('Set Executable Permissions') {
+        stage('Grant Execute Permission') {
             steps {
-                sh 'chmod +x gradlew'
-                sh "chmod +x ${BUILD_DIR}/${JAR_NAME}"  // 빌드된 JAR 파일 권한 부여
-                sh 'sudo chmod 777 /var/log/devops-playground.log'
+                sh 'chmod +x ./gradlew'  // gradlew에 실행 권한을 추가
             }
         }
 
         stage('Build') {
             steps {
-                script {
-                    sh './gradlew build'  // Gradle 빌드 실행
-                }
+                sh './gradlew clean build'
             }
         }
 
-        stage('Stop Existing Application') {
+        stage('Kill existing JAR process') {
             steps {
                 script {
-                    sh '''
-                        echo "Stopping any running processes..."
-                        PIDS=$(ps -eaf | grep 'devops-playground-0.0.1-SNAPSHOT.jar' | grep -v grep | awk '{print $2}')
-                        if [ -z "$PIDS" ]; then
-                            echo "No running process found."
-                        else
-                            echo "Killing processes: $PIDS"
-                            echo $PIDS | xargs -r sudo kill -9
-                        fi
-                    '''
+                    def pids = sh(script: "ps -eaf | grep ${JAR_NAME} | grep -v grep | awk '{print \$2}'", returnStdout: true).trim().split('\n')
+                    if (pids.size() > 0) {
+                        pids.each { pid ->
+                            echo "Killing process with PID: ${pid}"
+                            sh "sudo kill -9 ${pid}"
+                            echo "Process ${pid} is shutdown"
+                        }
+                    } else {
+                        echo "No running process for ${JAR_NAME} found"
+                    }
                 }
             }
         }
 
-
-        stage('Deploy') {
+        stage('Start new JAR') {
             steps {
                 script {
-                    echo "Starting devops-playground-0.0.1-SNAPSHOT.jar ..."
-                    //계속 오류떠서 하드코딩
-                    sh '''
-                        sudo nohup java -Dserver.port=8080 -jar /var/lib/jenkins/workspace/devops-playground/build/libs/devops-playground-0.0.1-SNAPSHOT.jar &
-                        sleep 5
-                    '''
-                    sh '''
-                        ps -eaf | grep 'devops-playground-0.0.1-SNAPSHOT.jar' | grep -v grep
-                    '''
+                    echo "Starting ${JAR_NAME} ..."
+                    sh "nohup sudo java -jar ${JAR_PATH} > /dev/null 2>&1 &"
+                    echo "${JAR_NAME} is now running"
                 }
             }
-        }
-
-    }
-
-    post {
-        success {
-            echo 'Build, Test, and Deploy were successful!'
-        }
-        failure {
-            echo 'Build, Test, or Deploy failed.'
         }
     }
 }
