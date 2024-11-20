@@ -60,7 +60,7 @@ pipeline {
                 script {
                     sh """
                     echo "Starting $JAR_NAME ..."
-                    nohup java -jar "$BUILD_DIR/$JAR_NAME" > /dev/null 2>&1 &
+                    nohup java -Dserver.port=8081 -jar "$BUILD_DIR/$JAR_NAME" > /dev/null 2>&1 &
                     echo "$JAR_NAME 돌아갑니다."
                     """
                 }
