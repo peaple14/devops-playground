@@ -17,7 +17,7 @@ pipeline {
         stage('Set Executable Permissions') {
             steps {
                 sh 'chmod +x gradlew'
-                sh 'chmod +x build/libs/devops-playground-0.0.1-SNAPSHOT.jar'
+                sh "chmod +x ${BUILD_DIR}/${JAR_NAME}"  // 빌드된 JAR 파일 권한 부여
                 sh 'sudo chmod 777 /var/log/devops-playground.log'
             }
         }
@@ -35,9 +35,9 @@ pipeline {
                 script {
                     sh '''
                         echo "Checking for running processes..."
-                        PID=$(ps -eaf | grep 'devops-playground-0.0.1-SNAPSHOT.jar' | grep -v grep | awk '{print $2}')
+                        PID=$(ps -eaf | grep '${JAR_NAME}' | grep -v grep | awk '{print $2}')
                         if [ -z "$PID" ]; then
-                            echo "No running process found for devops-playground-0.0.1-SNAPSHOT.jar"
+                            echo "No running process found for ${JAR_NAME}"
                         else
                             echo "Killing process with PID: $PID"
                             sudo kill -9 $PID  # 기존 애플리케이션 종료
@@ -52,10 +52,10 @@ pipeline {
             steps {
                 script {
                     sh """
-                    echo "Starting $JAR_NAME ..."
-                    sudo nohup java -Dserver.port=8080 -jar /home/ubuntu/devops-playground/build/libs/devops-playground-0.0.1-SNAPSHOT.jar > /var/log/devops-playground.log 2>&1 &
-                    sleep 5  # 잠시 대기 후 프로세스 확인
-                    PID=\$(ps -eaf | grep 'devops-playground-0.0.1-SNAPSHOT.jar' | grep -v grep | awk '{print \$2}')
+                    echo "Starting ${JAR_NAME} ..."
+                    sudo nohup java -Dserver.port=8080 -jar ${BUILD_DIR}/${JAR_NAME} > ${LOG_FILE} 2>&1 &
+                    sleep 5
+                    PID=\$(ps -eaf | grep '${JAR_NAME}' | grep -v grep | awk '{print \$2}')
                     echo "Application started with PID: \$PID"
                     """
                 }
