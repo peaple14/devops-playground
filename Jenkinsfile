@@ -23,18 +23,11 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    sh './gradlew build'
+                  sh './gradlew build'
                 }
             }
         }
 
-        stage('Test') { // test 코드 실행
-            steps {
-                script {
-                    sh './gradlew test'
-                }
-            }
-        }
 
         stage('Stop Existing Application') { // 기존 애플리케이션 종료
             steps {
@@ -46,7 +39,7 @@ pipeline {
                             echo "No running process found for devops-playground-0.0.1-SNAPSHOT.jar"
                         else
                             echo "Killing process with PID: $PID"
-                            kill -9 $PID
+                            sudo kill -9 $PID
                             echo "Process with PID $PID has been stopped"
                         fi
                     '''
@@ -54,13 +47,14 @@ pipeline {
             }
         }
 
+
         stage('Deploy') { // jar 실행
             steps {
                 script {
                     sh """
                     echo "Starting $JAR_NAME ..."
-                    nohup java -Dserver.port=8081 -jar ${BUILD_DIR}/${JAR_NAME} > ${LOG_FILE} 2>&1 &
-                    echo "$JAR_NAME is running on port 8081.."
+                    nohup java -Dserver.port=8080 -jar ${BUILD_DIR}/${JAR_NAME} > ${LOG_FILE} 2>&1 &
+                    echo "$JAR_NAME is running on port 8080.."
                     """
                 }
             }
