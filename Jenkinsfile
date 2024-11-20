@@ -39,16 +39,14 @@ pipeline {
             steps {
                 script {
                     sh '''
-                        if [ -z "$(ps -eaf | grep devops-playground-0.0.1-SNAPSHOT.jar | grep -v grep)" ]; then
-                            echo "Not found devops-playground-0.0.1-SNAPSHOT.jar"
+                        echo "Checking for running processes..."
+                        PID=$(ps -eaf | grep 'devops-playground-0.0.1-SNAPSHOT.jar' | grep -v grep | awk '{print $2}')
+                        if [ -z "$PID" ]; then
+                            echo "No running process found for devops-playground-0.0.1-SNAPSHOT.jar"
                         else
-                            ps -eaf | grep devops-playground-0.0.1-SNAPSHOT.jar | grep -v grep | awk '{print $2}' |
-                            while read PID
-                            do
-                                echo "Killing $PID"
-                                kill -9 $PID
-                                echo "$PID is shutdown"
-                            done
+                            echo "Killing process with PID: $PID"
+                            kill -9 $PID
+                            echo "Process with PID $PID has been stopped"
                         fi
                     '''
                 }
