@@ -60,7 +60,7 @@ pipeline {
                     sh """
                     echo "Starting $JAR_NAME ..."
                     nohup java -Dserver.port=8081 -jar ${BUILD_DIR}/${JAR_NAME} > ${LOG_FILE} 2>&1 &
-                    echo "$JAR_NAME is running on port 8081."
+                    echo "$JAR_NAME is running on port 8081.."
                     """
                 }
             }
