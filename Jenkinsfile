@@ -60,7 +60,7 @@ pipeline {
                 script {
                     sh """
                     echo "Starting $JAR_NAME ..."
-                    nohup java -Dserver.port=8081 -jar "$BUILD_DIR/$JAR_NAME" > ~/devops-playground.log 2>&1 &
+                    nohup java -Dserver.port=8081 -jar "$BUILD_DIR/$JAR_NAME" > /var/log/devops-playground.log 2>&1 &
                     echo "$JAR_NAME is running on port 8081."
                     """
                 }
