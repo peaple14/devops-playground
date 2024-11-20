@@ -3,13 +3,14 @@ pipeline {
 
     environment {
         JAR_NAME = "devops-playground-0.0.1-SNAPSHOT.jar"
-        BUILD_DIR = "/var/lib/jenkins/workspace/backend-pipeline/build/libs"  // 경로 수정
+        BUILD_DIR = "${workspace}/build/libs"
+        LOG_FILE = "/var/log/devops-playground.log"
     }
 
     stages {
         stage('Checkout') {
             steps {
-                 git branch: 'main', url: 'https://github.com/peaple14/devops-playground.git'
+                git branch: 'main', url: 'https://github.com/peaple14/devops-playground.git'
             }
         }
 
@@ -53,14 +54,12 @@ pipeline {
             }
         }
 
-
-
         stage('Deploy') { // jar 실행
             steps {
                 script {
                     sh """
                     echo "Starting $JAR_NAME ..."
-                    nohup java -Dserver.port=8081 -jar "$BUILD_DIR/$JAR_NAME" > /var/log/devops-playground.log 2>&1 &
+                    nohup java -Dserver.port=8081 -jar ${BUILD_DIR}/${JAR_NAME} > ${LOG_FILE} 2>&1 &
                     echo "$JAR_NAME is running on port 8081."
                     """
                 }
