@@ -14,9 +14,11 @@ pipeline {
             }
         }
 
-        stage('Set Executable Permission') {
+        stage('Set Executable Permissions') {
             steps {
                 sh 'chmod +x gradlew'
+                sh 'chmod +x build/libs/devops-playground-0.0.1-SNAPSHOT.jar'
+                sh 'sudo chmod 777 /var/log/devops-playground.log'
             }
         }
 
@@ -51,7 +53,7 @@ pipeline {
                 script {
                     sh """
                     echo "Starting $JAR_NAME ..."
-                    nohup java -Dserver.port=8080 -jar /home/ubuntu/devops-playground/build/libs/devops-playground-0.0.1-SNAPSHOT.jar > /var/log/devops-playground.log 2>&1 &
+                    sudo nohup java -Dserver.port=8080 -jar /home/ubuntu/devops-playground/build/libs/devops-playground-0.0.1-SNAPSHOT.jar > /var/log/devops-playground.log 2>&1 &
                     sleep 5  # 잠시 대기 후 프로세스 확인
                     PID=\$(ps -eaf | grep 'devops-playground-0.0.1-SNAPSHOT.jar' | grep -v grep | awk '{print \$2}')
                     echo "Application started with PID: \$PID"
