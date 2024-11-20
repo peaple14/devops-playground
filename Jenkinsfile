@@ -34,33 +34,36 @@ pipeline {
             steps {
                 script {
                     sh '''
-                        echo "Checking for running processes..."
-                        PID=$(ps -eaf | grep '${JAR_NAME}' | grep -v grep | awk '{print $2}')
-                        if [ -z "$PID" ]; then
-                            echo "No running process found for ${JAR_NAME}"
+                        echo "Stopping any running processes..."
+                        PIDS=$(ps -eaf | grep 'devops-playground-0.0.1-SNAPSHOT.jar' | grep -v grep | awk '{print $2}')
+                        if [ -z "$PIDS" ]; then
+                            echo "No running process found."
                         else
-                            echo "Killing process with PID: $PID"
-                            sudo kill -9 $PID  # 기존 애플리케이션 종료
-                            echo "Process with PID $PID has been stopped"
+                            echo "Killing processes: $PIDS"
+                            echo $PIDS | xargs -r sudo kill -9
                         fi
                     '''
                 }
             }
         }
 
+
         stage('Deploy') {
             steps {
                 script {
-                    sh """
-                    echo "Starting ${JAR_NAME} ..."
-                    sudo nohup java -Dserver.port=8080 -jar ${BUILD_DIR}/${JAR_NAME} > ${LOG_FILE} 2>&1 &
-                    sleep 5
-                    PID=\$(ps -eaf | grep '${JAR_NAME}' | grep -v grep | awk '{print \$2}')
-                    echo "Application started with PID: \$PID"
-                    """
+                    echo "Starting devops-playground-0.0.1-SNAPSHOT.jar ..."
+                    //계속 오류떠서 하드코딩
+                    sh '''
+                        sudo nohup java -Dserver.port=8080 -jar /var/lib/jenkins/workspace/devops-playground/build/libs/devops-playground-0.0.1-SNAPSHOT.jar &
+                        sleep 5
+                    '''
+                    sh '''
+                        ps -eaf | grep 'devops-playground-0.0.1-SNAPSHOT.jar' | grep -v grep
+                    '''
                 }
             }
         }
+
     }
 
     post {
