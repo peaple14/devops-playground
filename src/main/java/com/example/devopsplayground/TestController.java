@@ -13,6 +13,6 @@ public class TestController {
 
     @GetMapping("/test")
     public String test2(){
-        return "돌아가는중입니다.";
+        return "돌아가는중입니다..";
     }
 }
