@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         JAR_NAME = "devops-playground-0.0.1-SNAPSHOT.jar"
-        BUILD_DIR = "/var/lib/jenkins/workspace/backend-pipeline/build/libs"
+        BUILD_DIR = "/var/lib/jenkins/workspace/backend-pipeline/build/libs"  // 경로 수정
     }
 
     stages {
@@ -61,7 +61,7 @@ pipeline {
                     sh """
                     echo "Starting $JAR_NAME ..."
                     nohup java -Dserver.port=8081 -jar "$BUILD_DIR/$JAR_NAME" > ~/devops-playground.log 2>&1 &
-                    echo "$JAR_NAME 돌아갑니다."
+                    echo "$JAR_NAME is running on port 8081."
                     """
                 }
             }
