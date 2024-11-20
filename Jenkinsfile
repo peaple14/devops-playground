@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         JAR_NAME = "devops-playground-0.0.1-SNAPSHOT.jar"
-        BUILD_DIR = "/var/lib/jenkins/workspace/pipelinetest/build/libs"
+        BUILD_DIR = "/var/lib/jenkins/workspace/backend-pipeline/build/libs"
     }
 
     stages {
