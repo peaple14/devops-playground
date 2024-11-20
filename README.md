@@ -21,10 +21,16 @@
 - 해결 과정:
 - 옵션 1: **Swap 메모리 추가** 또는 **EBS 볼륨 확장** _(장기적 해결책)_  
 - 옵션 2: **Jenkins 디스크 공간 경고 임계값 낮춤** _(현재 Jenkins에서 큰 용량 작업이 없으므로 적용)_
-
+### Jenkins 디스크 공간 문제
+- 문제: 빌드 중 Jenkins가 멈추는 현상 발생
+- 해결: Swap 영역을 늘려 메모리 부족 문제를 해결
+### Jenkins 디스크 공간 문제
+- 문제: Stop Existing Application 단계에서 작동 중인 프로세스를 종료하는 과정에서 오류 발생
+- 해결: sudoers 파일에서 Jenkins 사용자의 kill 권한을 추가,파이프라인에서 kill 명령어에 sudo 권한 추가
 ---
 
-## JAR 파일 실행 및 관리 스크립트
+## ~~JAR 파일 실행 및 관리 스크립트~~
+_Jenkins 파이프라인으로 변경 수정후 SCM으로 Jenkinsfile내 내용으로 실행)_  
 
 ```bash
 JAR_NAME=devops-playground-0.0.1-SNAPSHOT.jar
