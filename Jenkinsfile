@@ -38,22 +38,24 @@ pipeline {
         stage('Stop Existing Application') { // 기존 애플리케이션 종료
             steps {
                 script {
-                    sh """
-                    if [ -z "`ps -eaf | grep $JAR_NAME | grep -v grep`" ]; then
-                        echo "Not found $JAR_NAME"
-                    else
-                        ps -eaf | grep $JAR_NAME | grep -v grep | awk '{print \$2}' |
-                        while read PID
-                        do
-                          echo "Killing \$PID"
-                          kill -9 \$PID
-                          echo "\$PID is shutdown"
-                        done
-                    fi
-                    """
+                    sh '''
+                        if [ -z "$(ps -eaf | grep devops-playground-0.0.1-SNAPSHOT.jar | grep -v grep)" ]; then
+                            echo "Not found devops-playground-0.0.1-SNAPSHOT.jar"
+                        else
+                            ps -eaf | grep devops-playground-0.0.1-SNAPSHOT.jar | grep -v grep | awk '{print $2}' |
+                            while read PID
+                            do
+                                echo "Killing $PID"
+                                kill -9 $PID
+                                echo "$PID is shutdown"
+                            done
+                        fi
+                    '''
                 }
             }
         }
+
+
 
         stage('Deploy') { // jar 실행
             steps {
