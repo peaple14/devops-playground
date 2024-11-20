@@ -1,20 +1,21 @@
 pipeline {
     agent any
 
-    tools {
-        // Jenkins에서 사용할 Gradle 버전 (Gradle 7.x가 설치되어 있다고 가정)
-        gradle 'Gradle 7.x'
-    }
-
     environment {
-        // 환경 변수 설정 (예: DB URL, 서버 IP 등)
+        JAR_NAME = "devops-playground-0.0.1-SNAPSHOT.jar"
+        BUILD_DIR = "/var/lib/jenkins/workspace/pipelinetest/build/libs"
     }
 
     stages {
         stage('Checkout') {
             steps {
-                // Git 리포지토리에서 코드 체크아웃
-                git 'https://github.com/peaple14/devops-playground.git'
+                 git branch: 'main', url: 'https://github.com/peaple14/devops-playground.git'
+            }
+        }
+
+        stage('Set Executable Permission') { // gradlew 실행 권한 부여
+            steps {
+                sh 'chmod +x gradlew'
             }
         }
 
@@ -26,19 +27,42 @@ pipeline {
             }
         }
 
-        stage('Test') {
+        stage('Test') { // test 코드 실행
             steps {
-                // Gradle 테스트 실행
                 script {
                     sh './gradlew test'
                 }
             }
         }
 
-        stage('Deploy') {
+        stage('Stop Existing Application') { // 기존 애플리케이션 종료
             steps {
-                // 배포 단계 설정 (예: EC2에 WAR 파일 복사 등)
                 script {
+                    sh """
+                    if [ -z "`ps -eaf | grep $JAR_NAME | grep -v grep`" ]; then
+                        echo "Not found $JAR_NAME"
+                    else
+                        ps -eaf | grep $JAR_NAME | grep -v grep | awk '{print \$2}' |
+                        while read PID
+                        do
+                          echo "Killing \$PID"
+                          kill -9 \$PID
+                          echo "\$PID is shutdown"
+                        done
+                    fi
+                    """
+                }
+            }
+        }
+
+        stage('Deploy') { // jar 실행
+            steps {
+                script {
+                    sh """
+                    echo "Starting $JAR_NAME ..."
+                    nohup java -jar "$BUILD_DIR/$JAR_NAME" > /dev/null 2>&1 &
+                    echo "$JAR_NAME 돌아갑니다."
+                    """
                 }
             }
         }
@@ -46,10 +70,10 @@ pipeline {
 
     post {
         success {
-            echo 'Build and deploy were successful!'
+            echo 'Build, Test, and Deploy were successful!'
         }
         failure {
-            echo 'Build or deploy failed.'
+            echo 'Build, Test, or Deploy failed.'
         }
     }
 }
